@@ -1,6 +1,6 @@
 # React + Vite + TailwindCSS + Lucide Icons
 
-Dự án này được xây dựng với **React** và **Vite**, kết hợp **Tailwind CSS** để styling nhanh chóng và **lucide-react** để dùng icon hiện đại.
+Dự án này được xây dựng với **React** và **Vite**, kết hợp **Tailwind CSS** để styling nhanh chóng và **lucide-react** để dùng icon hiện đại. Ứng dụng chính là **Pomodoro Timer** – giúp quản lý thời gian học tập/làm việc theo phương pháp Pomodoro.
 
 ---
 
@@ -24,8 +24,8 @@ Dự án này được xây dựng với **React** và **Vite**, kết hợp **T
 ### 1. Tạo project React + Vite
 
 ```bash
-npm create vite@latest green-habit
-cd green-habit
+npm create vite@latest pomodoro-timer
+cd pomodoro-timer
 npm install
 ```
 
@@ -56,7 +56,7 @@ export default {
 }
 ```
 
-Trong `src/index.css` (hoặc `App.css`):
+Trong `src/index.css`:
 
 ```css
 @tailwind base;
@@ -75,14 +75,14 @@ npm install lucide-react
 Sử dụng icon:
 
 ```jsx
-import { Leaf, Award, Star } from "lucide-react";
+import { Play, Pause, RotateCcw } from "lucide-react";
 
 function Example() {
   return (
-    <div>
-      <Leaf className="text-green-600" size={32} />
-      <Award className="text-yellow-500" size={32} />
-      <Star className="text-orange-400" size={32} />
+    <div className="flex gap-2">
+      <Play className="text-green-500" size={32} />
+      <Pause className="text-red-500" size={32} />
+      <RotateCcw className="text-gray-500" size={32} />
     </div>
   );
 }
@@ -90,17 +90,17 @@ function Example() {
 
 ---
 
-### 4. Thêm component GreenHabitApp
+### 4. Thêm component Pomodoro
 
-Trong `src/GreenHabitApp.jsx` copy code GreenHabitApp.
+Trong `src/Pomodoro.jsx` copy toàn bộ code Pomodoro Timer.
 Trong `src/App.jsx` import và render:
 
 ```jsx
 import React from "react";
-import GreenHabitApp from "./GreenHabitApp";
+import Pomodoro from "./Pomodoro";
 
 function App() {
-  return <GreenHabitApp />;
+  return <Pomodoro />;
 }
 
 export default App;
@@ -134,4 +134,4 @@ Mở [http://localhost:5173](http://localhost:5173) để xem kết quả.
 
 ---
 
-✅ Bây giờ bạn đã có một project React + Vite + Tailwind + Lucide Icons hoàn chỉnh để chạy **GreenHabitApp**.
+✅ Bây giờ bạn đã có một project **Pomodoro Timer** hoàn chỉnh với React + Vite + TailwindCSS + Lucide Icons để quản lý thời gian hiệu quả.
