@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, Coffee, Briefcase, Settings, History, Zap, TrendingUp, Target, Award, Flame, Music, Volume2, VolumeX, Moon, Sun, CheckSquare, List, Plus, BarChart2, Download } from 'lucide-react';
+import { Play, Pause, RotateCcw, Coffee, Briefcase, Settings, History, Zap, TrendingUp, Target, Award, Flame, Music, Volume2, VolumeX, Moon, Sun, CheckSquare, List, Plus, BarChart2, Download, Maximize2, Minimize2, HelpCircle } from 'lucide-react';
 
 const PomodoroTimer = () => {
   const [workDuration, setWorkDuration] = useState(25);
@@ -13,7 +13,9 @@ const PomodoroTimer = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showTasks, setShowTasks] = useState(false);
-  const [showStats, setShowStats] = useState(false); // New state for stats modal
+  const [showStats, setShowStats] = useState(false);
+  const [showHelp, setShowHelp] = useState(false); // New state for help modal
+  const [isFullscreen, setIsFullscreen] = useState(false); // New state for fullscreen
   const [tasks, setTasks] = useState([]);
   const [currentTaskId, setCurrentTaskId] = useState(null);
   const [newTaskText, setNewTaskText] = useState('');
@@ -30,6 +32,7 @@ const PomodoroTimer = () => {
   const intervalRef = useRef(null);
   const audioRef = useRef(null);
   const musicRef = useRef(null);
+  const appRef = useRef(null); // Ref for fullscreen
 
   useEffect(() => {
     // Load from localStorage
@@ -109,6 +112,33 @@ const PomodoroTimer = () => {
     };
   }, [isRunning, timeLeft]);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.code === 'Space') {
+        e.preventDefault();
+        toggleTimer();
+      } else if (e.code === 'KeyR') {
+        resetTimer();
+      } else if (e.code === 'KeyS') {
+        switchSession();
+      } else if (e.code === 'KeyF') {
+        toggleFullscreen();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isRunning, isWorkSession, isFullscreen]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
   const handleSessionComplete = () => {
     setIsRunning(false);
     
@@ -120,7 +150,7 @@ const PomodoroTimer = () => {
       taskId: isWorkSession ? currentTaskId : null
     };
     
-    const updatedSessions = [newSession, ...sessions].slice(0, 100); // Increased limit to 100 for better stats
+    const updatedSessions = [newSession, ...sessions].slice(0, 100);
     setSessions(updatedSessions);
     
     if (isWorkSession) {
@@ -337,7 +367,6 @@ const PomodoroTimer = () => {
 
   const currentTask = tasks.find(t => t.id === currentTaskId);
 
-  // New functions for stats
   const getWeeklyFocusTime = () => {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -377,8 +406,16 @@ const PomodoroTimer = () => {
     URL.revokeObjectURL(url);
   };
 
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      appRef.current.requestFullscreen().catch(err => console.error(err));
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
   return (
-    <div className={`min-h-screen relative overflow-hidden ${theme === 'dark' ? 'bg-slate-950' : 'bg-white text-slate-950'}`}>
+    <div ref={appRef} className={`min-h-screen relative overflow-hidden ${theme === 'dark' ? 'bg-slate-950' : 'bg-white text-slate-950'} ${isFullscreen ? 'p-0' : 'p-4'}`}>
       {/* Animated Background (only for dark mode) */}
       {theme === 'dark' && (
         <div className="absolute inset-0 opacity-30">
@@ -391,8 +428,8 @@ const PomodoroTimer = () => {
       {/* Grid Pattern (adjusted for theme) */}
       <div className={`absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:50px_50px] ${theme === 'light' ? 'bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)]' : ''}`} />
 
-      <div className="relative z-10 min-h-screen p-4 flex items-center justify-center">
-        <div className="w-full max-w-md">
+      <div className={`relative z-10 min-h-screen flex items-center justify-center ${isFullscreen ? 'p-8' : ''}`}>
+        <div className={`w-full ${isFullscreen ? 'max-w-4xl' : 'max-w-md'}`}>
           {/* Settings Modal */}
           {showSettings && (
             <div className={`fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 p-4 ${theme === 'light' ? 'bg-white bg-opacity-80 text-slate-950' : ''}`}>
@@ -736,6 +773,37 @@ const PomodoroTimer = () => {
             </div>
           )}
 
+          {/* Help Modal */}
+          {showHelp && (
+            <div className={`fixed inset-0 bg-black bg-opacity-80 backdrop-blur-sm flex items-center justify-center z-50 p-4 ${theme === 'light' ? 'bg-white bg-opacity-80 text-slate-950' : ''}`}>
+              <div className={`bg-gradient-to-br border rounded-3xl p-6 w-full max-w-sm max-h-96 overflow-y-auto shadow-2xl ${theme === 'dark' ? 'from-slate-900 to-slate-800 border-purple-500/30 shadow-purple-500/20' : 'from-gray-100 to-white border-gray-300 shadow-gray-300/20'}`}>
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className={`text-xl font-bold flex items-center gap-2 ${theme === 'dark' ? 'text-white' : 'text-slate-950'}`}>
+                    <HelpCircle className={`w-5 h-5 ${theme === 'dark' ? 'text-yellow-400' : 'text-yellow-600'}`} />
+                    Keyboard Shortcuts
+                  </h3>
+                  <button onClick={() => setShowHelp(false)} className={`${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-slate-950'}`}>
+                    <span className="text-2xl">×</span>
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  <div className={`p-3 rounded-xl ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-gray-100'}`}>
+                    <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-slate-950'}`}>Space</span>: Play/Pause timer
+                  </div>
+                  <div className={`p-3 rounded-xl ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-gray-100'}`}>
+                    <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-slate-950'}`}>R</span>: Reset timer
+                  </div>
+                  <div className={`p-3 rounded-xl ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-gray-100'}`}>
+                    <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-slate-950'}`}>S</span>: Switch session
+                  </div>
+                  <div className={`p-3 rounded-xl ${theme === 'dark' ? 'bg-slate-800/50' : 'bg-gray-100'}`}>
+                    <span className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-slate-950'}`}>F</span>: Toggle fullscreen
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Main Timer Card */}
           <div className={`bg-gradient-to-br backdrop-blur-xl border rounded-3xl shadow-2xl p-8 ${theme === 'dark' ? 'from-slate-900/90 to-slate-800/90 border-purple-500/30 shadow-purple-500/20' : 'from-gray-100/90 to-white/90 border-gray-300 shadow-gray-300/20'}`}>
             {/* Header */}
@@ -785,6 +853,22 @@ const PomodoroTimer = () => {
                 >
                   <Settings className={`w-5 h-5 transition ${theme === 'dark' ? 'text-gray-400 hover:text-purple-400' : 'text-gray-600 hover:text-purple-600'}`} />
                 </button>
+                <button
+                  onClick={toggleFullscreen}
+                  className={`p-2.5 rounded-xl transition border hover:border-purple-500/50 ${theme === 'dark' ? 'border-purple-500/20 hover:bg-slate-800' : 'border-gray-200 hover:bg-gray-100 hover:border-purple-300/50'}`}
+                >
+                  {isFullscreen ? (
+                    <Minimize2 className={`w-5 h-5 transition ${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-slate-950'}`} />
+                  ) : (
+                    <Maximize2 className={`w-5 h-5 transition ${theme === 'dark' ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-slate-950'}`} />
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowHelp(true)}
+                  className={`p-2.5 rounded-xl transition border hover:border-purple-500/50 ${theme === 'dark' ? 'border-purple-500/20 hover:bg-slate-800' : 'border-gray-200 hover:bg-gray-100 hover:border-purple-300/50'}`}
+                >
+                  <HelpCircle className={`w-5 h-5 transition ${theme === 'dark' ? 'text-gray-400 hover:text-yellow-400' : 'text-gray-600 hover:text-yellow-600'}`} />
+                </button>
               </div>
             </div>
 
@@ -800,7 +884,7 @@ const PomodoroTimer = () => {
             )}
 
             {/* Progress Ring */}
-            <div className="relative w-72 h-72 mx-auto mb-8">
+            <div className={`relative mx-auto mb-8 ${isFullscreen ? 'w-96 h-96' : 'w-72 h-72'}`}>
               <div className={`absolute inset-0 rounded-full blur-2xl ${isWorkSession ? (theme === 'dark' ? 'bg-gradient-to-br from-purple-500/20 to-pink-500/20' : 'bg-gradient-to-br from-purple-300/20 to-pink-300/20') : (theme === 'dark' ? 'bg-gradient-to-br from-cyan-500/20 to-blue-500/20' : 'bg-gradient-to-br from-cyan-300/20 to-blue-300/20')}`} />
               
               <svg className="w-full h-full transform -rotate-90 relative z-10">
@@ -815,22 +899,22 @@ const PomodoroTimer = () => {
                   </linearGradient>
                 </defs>
                 <circle
-                  cx="144"
-                  cy="144"
-                  r="128"
+                  cx="50%"
+                  cy="50%"
+                  r="45%"
                   fill="none"
                   stroke={`${theme === 'dark' ? '#1e293b' : '#d1d5db'}`}
                   strokeWidth="8"
                 />
                 <circle
-                  cx="144"
-                  cy="144"
-                  r="128"
+                  cx="50%"
+                  cy="50%"
+                  r="45%"
                   fill="none"
                   stroke={`url(#${isWorkSession ? 'workGradient' : 'breakGradient'})`}
                   strokeWidth="8"
-                  strokeDasharray={`${2 * Math.PI * 128}`}
-                  strokeDashoffset={`${2 * Math.PI * 128 * (1 - getProgress() / 100)}`}
+                  strokeDasharray={`${2 * Math.PI * (isFullscreen ? 172.8 : 128)}`} // Adjust for size
+                  strokeDashoffset={`${2 * Math.PI * (isFullscreen ? 172.8 : 128) * (1 - getProgress() / 100)}`}
                   strokeLinecap="round"
                   className="transition-all duration-1000"
                   filter="drop-shadow(0 0 8px rgba(168, 85, 247, 0.5))"
@@ -838,10 +922,10 @@ const PomodoroTimer = () => {
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="text-center">
-                  <div className={`text-6xl font-bold bg-clip-text text-transparent mb-2 tracking-tight ${theme === 'dark' ? 'bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400' : 'bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600'}`}>
+                  <div className={`font-bold bg-clip-text text-transparent mb-2 tracking-tight ${isFullscreen ? 'text-8xl' : 'text-6xl'} ${theme === 'dark' ? 'bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400' : 'bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600'}`}>
                     {formatTime(timeLeft)}
                   </div>
-                  <div className={`text-sm font-medium ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <div className={`font-medium ${isFullscreen ? 'text-lg' : 'text-sm'} ${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>
                     {isWorkSession ? 'Deep Focus Active' : 'Recovery Mode'}
                   </div>
                   <div className={`mt-2 text-xs ${theme === 'dark' ? 'text-gray-500' : 'text-gray-700'}`}>
@@ -852,7 +936,7 @@ const PomodoroTimer = () => {
             </div>
 
             {/* Controls */}
-            <div className="flex items-center justify-center gap-4 mb-8">
+            <div className={`flex items-center justify-center gap-4 mb-8 ${isFullscreen ? 'scale-125' : ''}`}>
               <button
                 onClick={resetTimer}
                 className={`p-4 rounded-2xl transition shadow-lg ${theme === 'dark' ? 'bg-slate-800 hover:bg-slate-700 border border-purple-500/30' : 'bg-white hover:bg-gray-100 border border-gray-300'}`}
