@@ -1,16 +1,137 @@
-# React + Vite
+# React + Vite + TailwindCSS + Lucide Icons
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Dự án này được xây dựng với **React** và **Vite**, kết hợp **Tailwind CSS** để styling nhanh chóng và **lucide-react** để dùng icon hiện đại.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 👨‍💻 Người thực hiện
 
-## React Compiler
+* **Nguyễn Trung – 22SE1**
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## ⚡ Công nghệ sử dụng
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+* [Vite](https://vitejs.dev/) – công cụ bundler nhanh & nhẹ.
+* [React](https://react.dev/) – thư viện UI phổ biến.
+* [Tailwind CSS](https://tailwindcss.com/) – utility-first CSS framework.
+* [lucide-react](https://lucide.dev/) – bộ icon hiện đại cho React.
+
+---
+
+## 🚀 Cài đặt & chạy project
+
+### 1. Tạo project React + Vite
+
+```bash
+npm create vite@latest green-habit
+cd green-habit
+npm install
+```
+
+Chọn framework: **React** → **JavaScript**.
+
+---
+
+### 2. Cài Tailwind CSS
+
+```bash
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
+
+Cập nhật `tailwind.config.js`:
+
+```js
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+```
+
+Trong `src/index.css` (hoặc `App.css`):
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+---
+
+### 3. Cài đặt lucide-react
+
+```bash
+npm install lucide-react
+```
+
+Sử dụng icon:
+
+```jsx
+import { Leaf, Award, Star } from "lucide-react";
+
+function Example() {
+  return (
+    <div>
+      <Leaf className="text-green-600" size={32} />
+      <Award className="text-yellow-500" size={32} />
+      <Star className="text-orange-400" size={32} />
+    </div>
+  );
+}
+```
+
+---
+
+### 4. Thêm component GreenHabitApp
+
+Trong `src/GreenHabitApp.jsx` copy code GreenHabitApp.
+Trong `src/App.jsx` import và render:
+
+```jsx
+import React from "react";
+import GreenHabitApp from "./GreenHabitApp";
+
+function App() {
+  return <GreenHabitApp />;
+}
+
+export default App;
+```
+
+---
+
+### 5. Chạy project
+
+```bash
+npm run dev
+```
+
+Mở [http://localhost:5173](http://localhost:5173) để xem kết quả.
+
+---
+
+## 📦 Build & deploy
+
+* Build sản phẩm:
+
+  ```bash
+  npm run build
+  ```
+* Preview build:
+
+  ```bash
+  npm run preview
+  ```
+* Có thể deploy dễ dàng lên **Vercel** hoặc **Netlify**.
+
+---
+
+✅ Bây giờ bạn đã có một project React + Vite + Tailwind + Lucide Icons hoàn chỉnh để chạy **GreenHabitApp**.
